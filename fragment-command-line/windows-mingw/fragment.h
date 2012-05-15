@@ -260,7 +260,7 @@ class Image
            }
          } 
          
-         void Save(char* funcFN)
+         void Save(const char* funcFN)
          {
            ILboolean able;  
            ILuint ilimage;

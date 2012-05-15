@@ -1,4 +1,4 @@
-Note: the "" are required, anything in () is there as explination, and not required in usage.
+Note: the "" are not required, anything in () is there as explination, and not required in usage.
 each exicution of fragment, processes one fragment shader code module.
 
 fragment -i "gpu-code-file1" -o "output image file name" -b "output raw binary file name" -s "x y(size of gpu data)" 
