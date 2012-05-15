@@ -94,6 +94,7 @@ void RunKernal(string fFnFragCode, string fFnOutputImage, int fSizeX, int fSizeY
     kernal.Exicute();
     Image outputImage = kernal.GetOutputImage();
     outputImage.Save(fFnOutputImage.c_str());
+	printf("Done!");
   }
   else 
   {
