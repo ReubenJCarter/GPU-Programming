@@ -1,0 +1,1 @@
+uniform sampler2D image;uniform int imageWidth;uniform int imageHeight;void main(){	vec4 color;	color= TexturePixel(image);	gl_FragColor = color;}

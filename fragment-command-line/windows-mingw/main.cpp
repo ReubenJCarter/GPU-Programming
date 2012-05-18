@@ -71,6 +71,8 @@ void RunKernal(string fFnFragCode, string fFnInputImage, string fFnOutputImage, 
 	    image = image.PowerTwoConvert();
 	  }
 	  kernal.PassImage("image", image, 0);
+	  kernal.Pass("imageWidth", image.GetWidth());
+	  kernal.Pass("imageHeight", image.GetHeight());
 	  kernal.Exicute();
       Image outputImage = kernal.GetOutputImage();
       outputImage.Save(fFnOutputImage.c_str()); 

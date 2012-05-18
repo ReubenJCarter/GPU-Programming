@@ -389,6 +389,11 @@ std::string GPUcode::defaultVertexCode =
 "}";
 
 std::string GPUcode::fragmentShaderHeader =
+"vec4 TexturePixel(sampler2D funcTexture)\n"
+"{\n"
+"  	vec4 col= texture2D(funcTexture, gl_TexCoord[0].st);\n"
+"	return col;\n"
+"}\n"
 "vec4 TexturePixel(sampler2D funcTexture, int funcTexUnit)\n"
 "{\n"
 "  	vec4 col= texture2D(funcTexture, gl_TexCoord[funcTexUnit].st);\n"
@@ -547,7 +552,7 @@ class imageProcess: public shader
            glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
            glTexImage2D(GL_TEXTURE_2D, 0, 3, funcIm.GetWidth(), funcIm.GetHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, funcIm.GetWidth(), funcIm.GetHeight(), GL_RGB, GL_UNSIGNED_BYTE, funcIm.GetData());
-           glBindTexture(GL_TEXTURE_2D, 0);   
+		   glBindTexture(GL_TEXTURE_2D, 0);   
            
            PassTexture(funcName, texture[funcTexUnitIndex], funcTexUnitIndex);
            if(funcTexUnitIndex==0)
@@ -567,9 +572,8 @@ class imageProcess: public shader
            glDeleteTextures(MAXTEXNUM, texture);
          }
          
-         Image Exicute()
-         {
-		   CreateFrameBuffer();
+         void Exicute()
+         {		   
            Use();
            RenderQuad(width, height);
            glUseProgramObjectARB(0);
