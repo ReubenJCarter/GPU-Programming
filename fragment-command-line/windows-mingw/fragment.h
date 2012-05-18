@@ -437,7 +437,7 @@ class imageProcess: public shader
           
           void CreateFrameBuffer()
           {
-            glDeleteTextures(1, &frameBuffer);
+            //glDeleteTextures(1, &frameBuffer);
             glGenTextures (1, &outputTexture);
             glBindTexture(GL_TEXTURE_2D, outputTexture);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -446,7 +446,7 @@ class imageProcess: public shader
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
             glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
             glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0, GL_RGBA , GL_FLOAT, 0); 
-  
+
             glGenFramebuffersEXT(1, &frameBuffer);
             glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, frameBuffer);
             glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, outputTexture, 0);
@@ -573,7 +573,8 @@ class imageProcess: public shader
          }
          
          void Exicute()
-         {		   
+         {	 
+		   CreateFrameBuffer();		 
            Use();
            RenderQuad(width, height);
            glUseProgramObjectARB(0);
