@@ -1,7 +1,14 @@
 Note: the "" are not required, anything in () is there as explination, and not required in usage.
 each exicution of fragment, processes one fragment shader code module.
 
-fragment -i "gpu-code-file" -o "output image file name" -b "output raw binary file name" -x "128" -y "128" (size of the image)
+fragment 
+-i "gpu-code-file" 
+-o "output image file name" 
+-b "output raw binary file name" (doesnt work yet, may never...)
+-x "128" 
+-y "128" (size of the image)
+-r "input image file name"
+-z (specifiy image resize to match power of 2)
 
 -i parameter required for exicution!
 Note: Some sizes of image do not work. It is best to stay with powers of 2 sizes. It all depends on the 
