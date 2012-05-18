@@ -11,5 +11,5 @@ fragment
 -z (specifiy image resize to match power of 2)
 
 -i parameter required for exicution!
-Note: Some sizes of image do not work. It is best to stay with powers of 2 sizes. It all depends on the 
-system you are using as to what image sizes are supported.
+Note: Some sizes of image do not work. It is best to stay with powers of 2 sizes, or force a power of two 
+resize of the image. It all depends on the system you are using as to what image sizes are supported.
