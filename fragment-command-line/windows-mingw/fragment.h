@@ -13,8 +13,8 @@ in a few hours, and as such, it is terrible.
 
 #include <stdio.h>
 #include <math.h>
-#include <gl/glew.h>
-#include <gl/glfw.h>
+#include <GL/glew.h>
+#include <GL/glfw.h>
 #include <IL/il.h> 
 #include <string>
 
