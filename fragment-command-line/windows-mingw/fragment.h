@@ -121,7 +121,7 @@ class Image
            CreateBlank(funcW, funcH);
          }
          
-         Image(char* funcFN)
+         Image(const char* funcFN)
          {
            Load(funcFN);
          }
@@ -339,7 +339,7 @@ class shader
            glUseProgramObjectARB(programObject);
          }
          
-         void Pass(char* funcName, int funcVal)
+         void Pass(const char* funcName, int funcVal)
          {
            glUseProgramObjectARB(programObject); 
            int location=glGetUniformLocation(programObject, funcName);
@@ -350,7 +350,7 @@ class shader
            glUseProgramObjectARB(0);           
          }
          
-         void Pass(char* funcName, float funcVal)
+         void Pass(const char* funcName, float funcVal)
          {
            glUseProgramObjectARB(programObject); 
            int location=glGetUniformLocation(programObject, funcName);
@@ -361,7 +361,7 @@ class shader
            glUseProgramObjectARB(0);          
          }
          
-         void PassTexture(char* funcName, unsigned int funcTextureId, int funcTextureUnit)
+         void PassTexture(const char* funcName, unsigned int funcTextureId, int funcTextureUnit)
          {
            glUseProgramObjectARB(programObject); 
            glActiveTexture(GL_TEXTURE0+funcTextureUnit);
@@ -536,7 +536,7 @@ class imageProcess: public shader
            RenderOutput(width, height);
          }
          
-         void PassImage(char* funcName, Image funcIm, int funcTexUnitIndex)
+         void PassImage(const char* funcName, Image funcIm, int funcTexUnitIndex)
          {
            glGenTextures(1, &texture[funcTexUnitIndex]);
            glBindTexture(GL_TEXTURE_2D, texture[funcTexUnitIndex]);

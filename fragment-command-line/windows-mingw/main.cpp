@@ -1,14 +1,8 @@
 #include <stdlib.h>
 #include "fragment.h"
 
-#define FRAGMENT_CODE 0
-#define OUTPUT_IMAGE 1
-#define OUTPUT_BIN 2
-#define GPU_SIZE_X 3
-#define GPU_SIZE_Y 4
 
 using namespace std;
-
 
 bool StringEqual(string fStr1, string fStr2)
 {
@@ -32,68 +26,63 @@ int StringToInt(string fStr)
   return atoi(fStr.c_str());
 }
 
-string FindParameter(int argc, char* fArgv[], int fMarker)
+bool FindMarker(int fArgc, char* fArgv[], string fMarker)
+{
+  string temp;
+  for(int i = 1; i < fArgc; i ++)
+  {
+    temp = fArgv[i];
+    if(StringEqual(temp, fMarker))
+	{
+	  return true;
+	}
+  }
+  return false;
+}
+
+string FindParameter(int fArgc, char* fArgv[], string fMarker)
 {
   string temp;
   string finalVal;
-  string testStr;
   
-  for(int i = 0; i < argc-1; i++)
+  for(int i = 0; i < fArgc-1; i++)
   {
     temp = fArgv[i];
-	switch(fMarker)
+	if(StringEqual(temp, fMarker))
 	{
-	  case FRAGMENT_CODE:
-	    testStr = "-i";
-	    if(StringEqual(temp, testStr))
-		{
-		  finalVal = fArgv[i+1];
-		  return  finalVal;
-		}
-	  break;
-	  
-	  case OUTPUT_IMAGE:
-	    testStr = "-o";
-	    if(StringEqual(temp, testStr))
-		{
-		  finalVal = fArgv[i+1];
-		  return  finalVal;
-		}
-	  break;
-	  
-	  case GPU_SIZE_X:
-	    testStr = "-x";
-	    if(StringEqual(temp, testStr))
-		{
-		  finalVal = fArgv[i+1];
-		  return  finalVal;
-		}
-	  break;
-	  
-	  case GPU_SIZE_Y:
-	    testStr = "-y";
-	    if(StringEqual(temp, testStr))
-		{
-		  finalVal = fArgv[i+1];
-		  return  finalVal;
-		}
-	  break;
-    }
+	  finalVal = fArgv[i + 1];
+	  return finalVal;
+	}
   }
-  
   return finalVal;
 }
 
-void RunKernal(string fFnFragCode, string fFnOutputImage, int fSizeX, int fSizeY)
+void RunKernal(string fFnFragCode, string fFnInputImage, string fFnOutputImage, int fSizeX, int fSizeY, bool fResize)
 {
   string code = System::ReadTextFile(fFnFragCode);
   if(code.length() > 0)
   {
-    imageProcess kernal(code);
-    kernal.SetSize(fSizeX, fSizeY);
-    kernal.Exicute();
-    Image outputImage = kernal.GetOutputImage();
-    outputImage.Save(fFnOutputImage.c_str());
+    if(fFnInputImage.length() > 0)
+	{
+      imageProcess kernal(code);
+	  Image image(fFnInputImage.c_str());
+	  if(fResize)
+	  {
+	    image = image.PowerTwoConvert();
+	  }
+	  kernal.PassImage("image", image, 0);
+	  kernal.Exicute();
+      Image outputImage = kernal.GetOutputImage();
+      outputImage.Save(fFnOutputImage.c_str()); 
+	}
+	else
+	{
+      imageProcess kernal(code);
+      kernal.SetSize(fSizeX, fSizeY);
+      kernal.Exicute();
+      Image outputImage = kernal.GetOutputImage();
+      outputImage.Save(fFnOutputImage.c_str());
+	}
 	printf("Done!");
   }
   else 
@@ -108,10 +97,13 @@ int main(int argc, char* argv[])
   
   if(argc>1)
   { 
-    string fnFragmentCode = FindParameter(argc, argv, FRAGMENT_CODE);
-	string fnOutputImage = FindParameter(argc, argv, OUTPUT_IMAGE);
-	string strSizeX = FindParameter(argc, argv, GPU_SIZE_X);
-	string strSizeY = FindParameter(argc, argv, GPU_SIZE_Y);
+    string fnFragmentCode = FindParameter(argc, argv, "-i");
+	string fnOutputImage = FindParameter(argc, argv, "-o");
+	string strSizeX = FindParameter(argc, argv, "-x");
+	string strSizeY = FindParameter(argc, argv, "-y");
+	string fnInputImage = FindParameter(argc, argv, "-r");
+	bool resize = FindMarker(argc, argv, "-z");
+	
     int sizeX = System::MaxTexSize();
     int sizeY = System::MaxTexSize();
 	
@@ -134,7 +126,7 @@ int main(int argc, char* argv[])
 	  
 	  if(sizeX != 0 && sizeY != 0)
 	  {
-	    RunKernal(fnFragmentCode, fnOutputImage, sizeX, sizeY);
+	    RunKernal(fnFragmentCode, fnInputImage, fnOutputImage, sizeX, sizeY, resize);
 	  }
 	  else 
 	  {
@@ -145,6 +137,7 @@ int main(int argc, char* argv[])
 	{
 	  printf("No GPU fragment code provided");
     }
+	
   }
   else
   {
