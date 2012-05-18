@@ -86,6 +86,7 @@ class System
 			while( c != EOF )
 			{
 			  c = fgetc(fptr);
+			  if(c >= 0 && c<= 127)
 			  temp += c;
 			}
 			fclose(fptr);
@@ -293,22 +294,22 @@ class shader
          {
          }
          
-         shader(char* funcVerCode, char* funcFragCode)
+         shader(const char** funcVerCode, int fVertexNumber, const char** funcFragCode, int fFragmentNumber)
          {
-           Load(funcVerCode, funcFragCode);
+           Load(funcVerCode, fVertexNumber, funcFragCode, fFragmentNumber);
          }
          
-         void Load(const char* funcVerCode, const char* funcFragCode)
+         void Load(const char** funcVerCode, int fVertexNumber, const char** funcFragCode, int fFragmentNumber)
          {  
            glDeleteObjectARB(vertexShader);
            glDeleteObjectARB(fragmentShader);
            glDeleteObjectARB(programObject);
-           const char* vCode= funcVerCode;
-           const char* fCode= funcFragCode;
+           const char** vCode= funcVerCode;
+           const char** fCode= funcFragCode;
            vertexShader=glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
            fragmentShader=glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
-           glShaderSourceARB(vertexShader, 1, &vCode, NULL);
-           glShaderSourceARB(fragmentShader, 1, &fCode, NULL);
+           glShaderSourceARB(vertexShader, fVertexNumber, vCode, NULL);
+           glShaderSourceARB(fragmentShader, fFragmentNumber, fCode, NULL);
            glCompileShaderARB(vertexShader);
            glCompileShaderARB(fragmentShader);
            programObject=glCreateProgramObjectARB();
@@ -393,28 +394,23 @@ std::string GPUcode::fragmentShaderHeader =
 "  	vec4 col= texture2D(funcTexture, gl_TexCoord[funcTexUnit].st);\n"
 "	return col;\n"
 "}\n"
-
 "vec4 TexturePixel(sampler2D funcTexture, int funcTexUnit, vec2 funcCoord)\n"
 "{\n"
 " 	vec4 col= texture2D(funcTexture, funcCoord);\n"
 "	return col;\n"
 "}\n"
-
 "vec2 Coord()\n"
 "{ \n"
 "	return gl_TexCoord[0].st;\n"
 "}\n"
-
 "int CoordIntX(int funcWidth)\n"
 "{"
 "  	return int(float(funcWidth)*Coord().x);\n"
 "}\n"
-
 "int CoordIntY(int funcHeight)\n"
 "{\n"
 "  	return int(float(funcHeight)*Coord().y);\n"
 "}\n"
-
 "vec2 Coord(int funcX, int funcY, int funcTextureWidth, int funcTextureHeight)\n"
 "{\n"
 "	vec2 result;\n"
@@ -495,17 +491,14 @@ class imageProcess: public shader
          
          void LoadFrag(std::string funcFragCode)
          {
-		   std::string tempFragCode = GPUcode::fragmentShaderHeader + funcFragCode;
-		   char* temp = new char[tempFragCode.length()+1];
-		   temp[tempFragCode.length()] = '\0';
+		   std::string tempString;
+           const char* temp1[1];
+           temp1[0] = GPUcode::defaultVertexCode.c_str();
+		   const char* temp2[2];
+           temp2[0] = GPUcode::fragmentShaderHeader.c_str();	   
+		   temp2[1] = funcFragCode.c_str();	
 		   
-		   for(int i = 0; i < tempFragCode.length(); i++)
-		   {
-		     if(tempFragCode[i] > 0 && tempFragCode[i] < 128)
-		       temp[i] = tempFragCode[i];
-		   }
-		   
-		   Load(GPUcode::defaultVertexCode.c_str(), temp);
+		   Load(temp1, 1, temp2, 2);
            width=0;
            height=0;
            frameBuffer=0;
