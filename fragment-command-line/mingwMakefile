@@ -7,13 +7,14 @@ LIBS = -l glfw \
 	   C:\MinGW\lib\DevIL.lib \
 	   -l glew32 \
 	   -l glu32 
-INCS = fragment.h
+INCS = code\fragment.h
 
 $(PROJ).exe : main.o
-	$(CC) main.o -o $(PROJ).exe -L $(LIBDIR) $(LIBS)
+	$(CC) build\main.o -o build\$(PROJ).exe -L $(LIBDIR) $(LIBS)
 
-main.o : main.cpp 
-	$(CC) -c main.cpp 
+main.o : code\main.cpp 
+	$(CC) -c code\main.cpp -o build\main.o
 
 main.o : $(INCS)
-main.o : makefile
+
+main.o : mingwMakefile
