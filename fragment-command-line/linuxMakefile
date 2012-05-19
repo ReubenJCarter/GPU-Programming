@@ -15,4 +15,4 @@ main.o : code\main.cpp
 
 main.o : $(INCS)
 
-main.o : linuxMakefile
+main.o : linuxMakefile   
