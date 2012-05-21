@@ -5,13 +5,13 @@ LIBS = -l glfw \
 	   -l IL \
 	   -l GLEW \
 	   -l GLU 
-INCS = code\fragment.h
+INCS = code/fragment.h
 
 $(PROJ) : main.o
-	$(CC) build\main.o -o build\$(PROJ) $(LIBS)
+	$(CC) build/main.o -o build/$(PROJ) $(LIBS)
 
-main.o : code\main.cpp 
-	$(CC) -c code\main.cpp -o build\main.o
+main.o : code/main.cpp 
+	$(CC) -c code/main.cpp -o build/main.o
 
 main.o : $(INCS)
 
