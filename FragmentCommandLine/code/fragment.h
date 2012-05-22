@@ -55,9 +55,9 @@ class System
 		  if(!glfwOpenWindow(funcWidth, funcHeight, 0,0,0,0,0,0, GLFW_WINDOW ))
 			printf("WINDOW: Cant Open a new window.\n");
 		  if(GLEW_OK!=glewInit())
-			printf( "GLEW: glew failed to installize.\n%s\n");
+			printf( "GLEW: glew failed to installize.\n");
 		  if(GLEW_OK!=glewInit())
-			printf( "GLEW: glew failed to installize.\n%s\n");
+			printf( "GLEW: glew failed to installize.\n");
 		  ilInit();
 		  ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
 		  ilEnable(IL_ORIGIN_SET);
