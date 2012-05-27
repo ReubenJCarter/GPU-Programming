@@ -1,3 +1,7 @@
+/* 
+Water ripples render, in glsl pixel shader language
+written by Reuben Carter
+*/
 void main()
 {
   vec4 color;
