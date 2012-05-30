@@ -1,0 +1,252 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Gpu-programming, Fragment Utility by ReubenJCarter</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/main.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+
+      <header>
+        <h1>Gpu-programming, Fragment Utility</h1>
+        <p>A simple utility for easily running code on the graphics card, allowing super fast parallel image processing and general computation. </p>
+      </header>
+
+      <div id="banner">
+        <span id="logo"></span>
+
+        <a href="https://github.com/ReubenJCarter/GPU-Programming" class="button fork"><strong>View On GitHub</strong></a>
+        <div class="downloads">
+          <span>Downloads:</span>
+          <ul>
+            <li><a href="https://github.com/ReubenJCarter/GPU-Programming/zipball/master" class="button">ZIP</a></li>
+            <li><a href="https://github.com/ReubenJCarter/GPU-Programming/tarball/master" class="button">TAR</a></li>
+          </ul>
+        </div>
+      </div><!-- end banner -->
+
+    <div class="wrapper">
+      <nav>
+        <ul></ul>
+      </nav>
+      <section>
+        <h2>Concept</h2>
+
+<p>The aim of this project is to create a utility for easily running programs on the graphics card, for doing image processing or just general computation. </p>
+
+<p>The utility has the ability to read from and write to a variety or image formats, including bmp jpg png, (and anything else supported by devil image library). The program is a simple to use, command line utility. You can write shader code for the graphics card in opengl shader language, and quickly run your code, rendering the output to an image. The software handles all of the scaling and mapping and vertex shaders, allowing a non specialist user direct access to fragment shaders. There are also a number of built in functions in shader language, in an attempt to simplify shader code. There are simple functions to find image pixel values, pixel coordinates ect.. You can also load images and apply image processes. There are a number of built in image processing functions, like edge detection and thresholding. The user controls all the functionality via a very simple command line interpreter, and of course, the code they are running. I have use the system to easily produce images like these:</p>
+
+<h2><strong>Mandelbrot</strong></h2>
+
+<p><img src="https://github.com/ReubenJCarter/GPU-Programming/raw/gh_pages/images/Mandelbrot.jpg" alt="Mandelbrot"></p>
+
+<pre><code>/* 
+Mandelbrot set render, in glsl pixel shader language
+written by Reuben Carter
+*/
+
+void main()
+{
+  float scale = 0.6;
+  vec4 colour = vec4(0.0, 0.0, 0.3, 1.0);
+  vec2 c = Coord()/scale;
+  c.x -=1.5;
+  c.y -=1.0;
+  vec2 z = c;
+  float x_temp;
+
+  for(int i = 0; i &lt; 100; i++)
+  {
+    x_temp = z.x;
+    z.x = z.x * z.x - z.y * z.y + c.x;
+    z.y = x_temp * z.y * 2.0 + c.y;
+    if((z.x*z.x + z.y*z.y) &gt; 4.0)
+    {
+        colour.x =  1.0/(float(i)/8.0);
+        colour.y =  1.0/(float(i)/8.0);
+        break;
+    }
+  }
+  gl_FragColor = colour;
+}
+</code></pre>
+
+<h2><strong>Water Waves</strong></h2>
+
+<p><img src="https://github.com/ReubenJCarter/GPU-Programming/raw/gh_pages/images/WaterWaves.jpg" alt="Water Waves"></p>
+
+<pre><code>/* 
+Water ripples render, in glsl pixel shader language
+written by Reuben Carter
+*/
+void main()
+{
+  vec4 color;
+  vec2 c1 = vec2(Coord().x - 0.2, Coord().y - 0.2 );
+  vec2 c2 = vec2(Coord().x - 0.8, Coord().y - 0.8);
+  float sin1 = (1.0 / (length(c1) * 3.0) ) * sin(length(c1) * 2.0 * 3.14159 * 20.0)/2.0 +0.5;
+  float sin2 = (1.0 / (length(c2) * 3.0) ) * sin(length(c2) * 2.0 * 3.14159 * 30.0)/2.0 +0.5;
+
+  color = vec4(0.0, 0.5 * (sin1 + sin2) / 2.0, 0.8 * (sin1 + sin2) / 2.0, 1.0);
+
+  gl_FragColor = color;
+}
+</code></pre>
+
+<h2><strong>Smooth Edge Detection</strong></h2>
+
+<p><img src="https://github.com/ReubenJCarter/GPU-Programming/raw/master/SmoothEdgeDetectionOnMandelbrot.jpg" alt="Mandelbrot Edge"></p>
+
+<p><img src="https://github.com/ReubenJCarter/GPU-Programming/raw/gh_pages/images/CoolEdgeDetect.jpg" alt="CoolEdgeDetect"></p>
+
+<pre><code>   vec4 BlackWhite(vec4 funcTexturePixel)
+   {
+     vec4 col= funcTexturePixel;
+     float intensity;
+     intensity=(col.x+col.y+col.z)/3.0;
+     col.x=intensity;
+     col.y=intensity;
+     col.z=intensity;
+     return col;
+   }
+
+   vec4 Binary(vec4 funcTexturePixel, float funcMinVal)
+   {
+     vec4 col= funcTexturePixel;
+     col.x=(col.x+col.y+col.z)/3.0;
+     col.y=0.0;
+     col.z=0.0;
+     if (col.x&gt;funcMinVal)
+   {
+     col.x=1.0;
+     col.y=1.0;
+     col.z=1.0;
+   }
+     else
+   {
+     col.x=0.0;
+   }
+     return col;
+   }
+
+   vec4 Threshold(vec4 funcTexturePixel, int funcFactor)
+   {
+     vec4 col= funcTexturePixel;
+     float val=col.x;
+     col.x= float(int(val*float(funcFactor)))/float(funcFactor);
+     val=col.y;
+     col.y= float(int(val*float(funcFactor)))/float(funcFactor);
+     val=col.z;
+     col.z= float(int(val*float(funcFactor)))/float(funcFactor);
+     return col*2.0;
+   }
+
+   vec4 Gradient(sampler2D funcTexture, int funcTextureUnit, int funcWidth, int funcHeight, int funcThresholdFactor, float funcGradientCutoff)
+   {
+     vec4 n= TexturePixel(funcTexture, funcTextureUnit, Coord(CoordIntX(funcWidth), CoordIntY(funcHeight)-1, funcWidth, funcHeight));
+     vec4 s= TexturePixel(funcTexture, funcTextureUnit, Coord(CoordIntX(funcWidth), CoordIntY(funcHeight)+1, funcWidth, funcHeight));
+     vec4 e= TexturePixel(funcTexture, funcTextureUnit, Coord(CoordIntX(funcWidth)+1, CoordIntY(funcHeight), funcWidth, funcHeight));
+     vec4 w= TexturePixel(funcTexture, funcTextureUnit, Coord(CoordIntX(funcWidth)-1, CoordIntY(funcHeight), funcWidth, funcHeight));
+     vec4 me= TexturePixel(funcTexture, funcTextureUnit, Coord());
+     n=BlackWhite(n);
+     s=BlackWhite(s);
+     e=BlackWhite(e);
+     w=BlackWhite(w);
+     me=BlackWhite(me);
+     n=Threshold(n, funcThresholdFactor);
+     s=Threshold(s, funcThresholdFactor);
+     e=Threshold(e, funcThresholdFactor);
+     w=Threshold(w, funcThresholdFactor);
+     me=Threshold(me, funcThresholdFactor);
+     n=Binary(n, 0.01);
+     s=Binary(s, 0.01);
+     e=Binary(e, 0.01);
+     w=Binary(w, 0.01);
+     me=Binary(me, 0.1);
+     float dn= abs(n.x-me.x);
+     float ds= abs(s.x-me.x);
+     float de= abs(e.x-me.x);
+     float dw= abs(w.x-me.x);
+     float tempIntesity=(dn+dw+ds+de)/4.0;
+     if(tempIntesity&gt;funcGradientCutoff)
+       tempIntesity=1.0;
+     else
+       tempIntesity=0.0;
+     vec4 result= vec4(tempIntesity, tempIntesity, tempIntesity, 1.0);
+     return result;
+   }
+
+   uniform sampler2D image;
+   uniform int imageWidth;
+   uniform int imageHeight;
+
+   void main()
+   {
+     vec4 color;
+     color= Gradient(image, 0, imageWidth, imageHeight, 10, 0.001);
+     gl_FragColor = color;
+   }
+</code></pre>
+
+<h2>Operation</h2>
+
+<p>Currently the utillity has been tested under Windows, and linux - Ubuntu, and Arch, with a few different NVIDIA graphics cards, however it should work on any card that supports pixel shaders. There will be many bug that I have not found yet, as I have done minimal testing (im in the middle of my exams, and only started this project a few days ago). The maximum image size supported is generaly down to how good your graphics card is. This can be determined by leaving size parameters blank when running the utillity. My graphics card, a Geforce G102M supports sizes up to 8192 by 8192 pixels.  </p>
+
+<p>command line usage:</p>
+
+<pre><code>    fragment 
+    -i "gpu-code-file" 
+    -o "output image file name" (if this is left out, the image is output to "default.jpg")
+    -b "output raw binary file name" (doesnt work yet, may never...)
+    -x "128" 
+    -y "128" (size of the image, ie how many times the fragment code is exicuted)
+    -r "input image file name"
+    -z (specifiy image resize to match power of 2)
+</code></pre>
+
+<p>Note: the "" are not required, anything in () is there as explination, and not required in usage.
+-i parameter required for exicution obviously!
+Note: Some sizes of image do not work. It is best to stay with powers of 2 sizes, or force a power of two resize of the image. It all depends on the system you are using as to what image sizes are supported, and how long you are willing to wait. I do not advise leaving the -x -y paramenters out, as maximum size image may take a while to generate. You can export to a number of different formats by changing the extension of the output file name.</p>
+
+<p>This utillity uses openGL shader language. When you run code with this utillity, the code is repeated and run for each pixel of the image you want to generate. This means that for any problem you want to solve, the outputs must be independent of the other outputs, as they are all calculated in parallel. It is great for problems that can be split up into parrallel operations. Most problems in image processing and anything where the output is an image can be split up into a series of parallel operations.</p>
+
+<p>There are two major ways to  use the utillity. Firstly for image processing, a start image must be loaded, and then the pixel values manipulated in some way, based on the fragment shader code. An example being the edge detection, which is applied to the mandelbrot image. The second way to use it, is to generate an image from scratch, like the mandelbrot set, or the water waves examples above. In the future there will be functionality for loading multiple images for processing, chaining processes, and for processing raw data. </p>
+
+<p>The most basic shader writes a value to all the pixels in the image, code which looks like this:</p>
+
+<pre><code>void main()
+{
+  gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+}
+</code></pre>
+
+<p>Will produce a solid blue image. We can extend this code to produce a smooth gradient of colour across the image from black to blue. We do this by making the pixel colour value dependent on the current pixel coordinate. </p>
+
+<pre><code>void main()
+{
+  gl_FragColor = vec4(0.0, 0.0, Coord().x, 1.0);
+}
+</code></pre>
+
+<p>The function Coord() returns the normalized pixel coordinate, of the pixel the code is actting on. (This is a number between 0 and 1). This is a vector value (vec2). The actual pixel coordinate, in pixels can be returned using CoordIntX() / CoordIntY(). These functions both return integer values of the coordinate. Input images pixel values can be accessed via the TexturePixel functions. They allow acess to any pixel in the image, not just the pixel of the current pixel the code is acting on. Look at the examples above.</p>
+
+<p>Also use at your own risk! I take no responsibility for any damage or loss of data cause by this software. Have fun!</p>
+      </section>
+      <footer>
+        <p>Project maintained by <a href="https://github.com/ReubenJCarter">ReubenJCarter</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="http://twitter.com/#!/michigangraham">mattgraham</a></small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
+    
+  </body>
+</html>
